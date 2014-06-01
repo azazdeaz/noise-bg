@@ -14,7 +14,14 @@ Element providing solution to no problem in particular.
 -->
 <polymer-element name="noise-bg" attributes="notitle">
 
-  <template>
+  <template attributes="width heigth">
+
+    <style>
+      :host{
+        width: {{width}};
+        height: {{height}};
+      };
+    </style>
 
     <link rel="stylesheet" href="noise-bg.css" />
 
@@ -25,6 +32,9 @@ Element providing solution to no problem in particular.
   <script>
 
     Polymer('noise-bg', {
+
+      width: '123px',
+      height: '123px',
       /**
        * The `noevent` event is not actually fired from here,
        * we document it as an example of documenting events.
