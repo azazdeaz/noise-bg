@@ -1,0 +1,9 @@
+{
+  "name": "noise-bg",
+  "version": "0.0.0",
+  "keywords": "seed, polymer, web-components",
+  "main": "noise-bg.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#~0.3.1"
+  }
+}
