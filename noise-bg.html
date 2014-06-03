@@ -14,13 +14,13 @@ Element providing solution to no problem in particular.
 -->
 <polymer-element name="noise-bg" attributes="notitle">
 
-  <template attributes="width heigth">
+  <template attributes="patternWidth patternHeight backgroundColor color0 color1">
+
 
     <style>
       :host{
-        width: {{width}};
-        height: {{height}};
-        background-color: {{baseColor}};
+        background-color: {{backgroundColor}};
+        background-image: {{_pattern}};
       };
     </style>
 
@@ -30,13 +30,17 @@ Element providing solution to no problem in particular.
 
   </template>
 
+  <script src='bower_components/css-color-parser-js/csscolorparser.js'></script>
   <script>
+    'use strict';
 
     Polymer('noise-bg', {
 
-      width: '123px',
-      height: '123px',
-      baseColor: '#1a1a1a',
+      patternWidth: 123,
+      patternHeight: 123,
+      backgroundColor: '#1a1a1a',
+      color0: '#ffffff',
+      color1: '#000000',
       /**
        * The `noevent` event is not actually fired from here,
        * we document it as an example of documenting events.
@@ -58,21 +62,66 @@ Element providing solution to no problem in particular.
        * @property aProp
        * @type bool
        */
-      aProp: false,
 
       ready: function() {
+        this._canvas = document.createElement('canvas');
+
+        if(this._canvas) {
+          this._ctx = this._canvas.getContext('2d');
+        }
+
+        this.render();
       },
 
       /**
-       * The `task` method does no work at this time.
+       * Render and set the background
        *
-       * @method task
-       * @return {Object} Returns undefined.
-       * @param {String} dummy Serves no purpose today.
+       * @method render
+       * @return void
        */
-      task: function(dummy) {
-      }
+      render: function(dummy) {
 
+        if (!this._ctx) {
+          return;
+        }
+
+        // copy the image data back onto the canvas
+
+        this._canvas.width = this.patternWidth;
+        this._canvas.height = this.patternHeight;
+        var imageData = this._ctx.createImageData(this._canvas.width, this._canvas.height),
+          color0 = parseCSSColor(this.color0),
+          color1 = parseCSSColor(this.color1);
+
+        var setPixel = function (x, y, imageData) {
+
+          var r = Math.random(),
+            index = (x + y * imageData.width) * 4;
+
+          imageData.data[index+0] = color0[0] + (color1[0] - color0[0]) * r;
+          imageData.data[index+1] = color0[1] + (color1[1] - color0[1]) * r;
+          imageData.data[index+2] = color0[2] + (color1[2] - color0[2]) * r;
+          imageData.data[index+3] = (color0[3] + (color1[3] - color0[3]) * r) * 256;
+        };
+
+        for (var x = 0; x < imageData.width; ++x) {
+          for (var y = 0; y < imageData.height; ++y) {
+            setPixel(x, y, imageData);
+          }
+        }
+
+        this._ctx.putImageData(imageData, 0, 0);
+        console.log(this._canvas)
+        this._pattern = 'url('+this._canvas.toDataURL("image/png")+')';
+        console.log(this._pattern)
+      },
+
+      observe: {
+        patternWidth: 'render',
+        patternHeight: 'render',
+        color0: 'render',
+        color1: 'render'
+      }
     });
 
   </script>

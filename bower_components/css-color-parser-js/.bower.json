@@ -1,0 +1,14 @@
+{
+  "name": "css-color-parser-js",
+  "homepage": "https://github.com/deanm/css-color-parser-js",
+  "_release": "ee289bec48",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "ee289bec4838ea04b23cca7fa4f20f3a5f9157b8"
+  },
+  "_source": "https://github.com/deanm/css-color-parser-js.git",
+  "_target": "*",
+  "_originalSource": "https://github.com/deanm/css-color-parser-js.git",
+  "_direct": true
+}
