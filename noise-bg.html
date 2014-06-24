@@ -1,4 +1,4 @@
-<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="bower_components/polymer/polymer.html">
 
 <!--
 Element providing solution to no problem in particular.
@@ -12,14 +12,14 @@ Element providing solution to no problem in particular.
 @status alpha
 @homepage http://azazdeaz.github.io/noise-bg
 -->
-<polymer-element name="noise-bg" attributes="notitle">
+<polymer-element name="noise-bg" attributes="pattern-width pattern-height background-color renderer-options">
 
-  <template attributes="patternWidth patternHeight backgroundColor color0 color1">
+  <template>
 
 
     <style>
       :host{
-        background-color: {{backgroundColor}};
+        background-color: {{background-color}};
         background-image: {{_pattern}};
       };
     </style>
@@ -36,25 +36,14 @@ Element providing solution to no problem in particular.
 
     Polymer('noise-bg', {
 
-      patternWidth: 123,
-      patternHeight: 123,
-      backgroundColor: '#1a1a1a',
-      color0: '#ffffff',
-      color1: '#000000',
-      /**
-       * The `noevent` event is not actually fired from here,
-       * we document it as an example of documenting events.
-       *
-       * @event noevent
-       */
-
-      /**
-       * The `notitle` attribute does not yet have a purpose.
-       *
-       * @attribute notitle
-       * @type string
-       */
-      notitle: '',
+      'pattern-width': 123,
+      'pattern-height': 123,
+      'background-color': '#1a1a1a',
+      'renderer-options': {
+        type: 'noise',
+        color0: '#ffffff',
+        color1: '#000000'
+      },
 
       /**
        * The `aProp` is a property that does something cool.
@@ -64,12 +53,13 @@ Element providing solution to no problem in particular.
        */
 
       ready: function() {
-        this._canvas = document.createElement('canvas');
+        this.canvas = document.createElement('canvas');
 
-        if(this._canvas) {
-          this._ctx = this._canvas.getContext('2d');
+        if(this.canvas) {
+          this.ctx = this.canvas.getContext('2d');
         }
 
+        this.setRenderer(this['renderer-options']);
         this.render();
       },
 
@@ -79,21 +69,53 @@ Element providing solution to no problem in particular.
        * @method render
        * @return void
        */
-      render: function(dummy) {
 
-        if (!this._ctx) {
-          return;
+      preRender: function () {
+        
+        this.canvas.width = this['pattern-width'];
+        this.canvas.height = this['pattern-height'];
+      },
+
+      doRender: function() {
+
+      },
+
+      postRender: function () {
+
+        this._pattern = 'url('+this.canvas.toDataURL("image/png")+')';
+      },
+
+      render: function () {
+
+        this.preRender();
+        this.doRender();
+        this.postRender();
+      },
+
+      observe: {
+        patternwidth: 'render',
+        patternheight: 'render',
+        rendereroptions: 'render'
+      },
+
+      setRenderer: function (opt) {
+
+        if (RENDERERS.hasOwnProperty(opt.type)) {
+
+          this.doRender = RENDERERS[opt.type](opt);
         }
+      }
+    });
+    
+    var RENDERERS = {
 
-        // copy the image data back onto the canvas
+      'noise': function (opt) {
+        
+        var color0 = parseCSSColor(opt.color0),
+            color1 = parseCSSColor(opt.color1),
+            imageData;
 
-        this._canvas.width = this.patternWidth;
-        this._canvas.height = this.patternHeight;
-        var imageData = this._ctx.createImageData(this._canvas.width, this._canvas.height),
-          color0 = parseCSSColor(this.color0),
-          color1 = parseCSSColor(this.color1);
-
-        var setPixel = function (x, y, imageData) {
+        function setPixel (x, y, imageData) {
 
           var r = Math.random(),
             index = (x + y * imageData.width) * 4;
@@ -102,27 +124,22 @@ Element providing solution to no problem in particular.
           imageData.data[index+1] = color0[1] + (color1[1] - color0[1]) * r;
           imageData.data[index+2] = color0[2] + (color1[2] - color0[2]) * r;
           imageData.data[index+3] = (color0[3] + (color1[3] - color0[3]) * r) * 256;
-        };
-
-        for (var x = 0; x < imageData.width; ++x) {
-          for (var y = 0; y < imageData.height; ++y) {
-            setPixel(x, y, imageData);
-          }
         }
 
-        this._ctx.putImageData(imageData, 0, 0);
-        console.log(this._canvas)
-        this._pattern = 'url('+this._canvas.toDataURL("image/png")+')';
-        console.log(this._pattern)
-      },
+        return function () {
 
-      observe: {
-        patternWidth: 'render',
-        patternHeight: 'render',
-        color0: 'render',
-        color1: 'render'
+          var imageData = this.ctx.createImageData(this.canvas.width, this.canvas.height);
+
+          for (var x = 0; x < imageData.width; ++x) {
+            for (var y = 0; y < imageData.height; ++y) {
+              setPixel(x, y, imageData);
+            }
+          }
+
+          this.ctx.putImageData(imageData, 0, 0);
+        }
       }
-    });
+    }
 
   </script>
 
