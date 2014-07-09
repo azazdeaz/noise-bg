@@ -5,6 +5,7 @@
   "main": "noise-bg.html",
   "dependencies": {
     "polymer": "Polymer/polymer#~0.3.1",
-    "css-color-parser-js": "https://github.com/deanm/css-color-parser-js.git"
+    "css-color-parser-js": "https://github.com/deanm/css-color-parser-js.git",
+    "codemirror": "~4.3.0"
   }
 }
