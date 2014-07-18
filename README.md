@@ -1,4 +1,6 @@
-noise-bg
+#WIP
+
+[noise-bg](http://azazdeaz.github.io/noise-bg/demo.html)
 ================
 
 See the [component page](http://azazdeaz.github.io/noise-bg) for more information.
